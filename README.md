@@ -1,4 +1,29 @@
-macOS Firewall Configuration (Task 4 Guide)
+
+
+# Enable macOS firewall via CLI (also possible via System Settings UI)
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on   # Turn on Application Firewall 
+
+# Add pf rule to allow SSH (port 22):
+echo "pass in proto tcp from any to any port 22 keep state" | sudo pfctl -f - 
+
+# Add pf rule to block Telnet (port 23) on loopback:
+echo "block drop quick on lo0 proto tcp from any to any port = 23" | sudo pfctl -e -f -   # Enables pf and loads rule 
+
+# (Test with netcat/telnet on localhost here)
+
+# Revert: disable pf or reload default:
+sudo pfctl -d                          # Disable pf 
+sudo pfctl -f /etc/pf.conf             # Reload original rules 
+
+Adjust commands to your interface (replace lo0 with en0 or omit on INTERFACE for all interfaces).
+
+
+
+
+BELOW ARE THE PROPER STEPS AND CONCLUSIONS:
+
+
+macOS Firewall Configuration 
 
 Step 1 – Enable the Built‑in Firewall: In macOS Ventura or later, open System Settings, select Network, then click Firewall ￼. (On macOS Monterey or earlier, go to System Preferences → Security & Privacy → Firewall ￼ ￼.) Click the lock and authenticate, then click “Turn On Firewall” ￼. This enables the Application Firewall (socketfilterfw) and prevents unsolicited incoming connections.
 
@@ -36,9 +61,9 @@ Step 6 – Capture Safe Screenshots: When taking screenshots of the firewall set
 
 ⸻
 
-README.md Documentation (for GitHub)
 
-This README documents Task 4: Configuring the macOS Firewall. All steps below were performed safely without exposing real IPs or private data.
+
+This  Task 4: Configuring the macOS Firewall. All steps below were performed safely without exposing real IPs or private data.
 
 What Was Done
 	•	Enabled the macOS firewall: Turned on the built-in Application Firewall via System Settings ￼ ￼.
@@ -58,23 +83,6 @@ Tools Used
 
 Commands / Steps
 
-# Enable macOS firewall via CLI (also possible via System Settings UI)
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on   # Turn on Application Firewall [oai_citation:24‡kolide.com](https://www.kolide.com/features/checks/mac-firewall#:~:text=echo%20,setglobalstate%20on)
-
-# Add pf rule to allow SSH (port 22):
-echo "pass in proto tcp from any to any port 22 keep state" | sudo pfctl -f - 
-
-# Add pf rule to block Telnet (port 23) on loopback:
-echo "block drop quick on lo0 proto tcp from any to any port = 23" | sudo pfctl -e -f -   # Enables pf and loads rule [oai_citation:25‡superuser.com](https://superuser.com/questions/505128/deny-access-to-a-port-from-localhost-on-osx#:~:text=To%20filter%20port%201234%20on,use%20a%20rule%20like%20this)
-
-# (Test with netcat/telnet on localhost here)
-
-# Revert: disable pf or reload default:
-sudo pfctl -d                          # Disable pf [oai_citation:26‡unix.stackexchange.com](https://unix.stackexchange.com/questions/157809/pf-blocks-all-in-out-traffic-instead-of-just-the-one-port-i-wanted-to-block#:~:text=After%20I%20start%20pf%20with,d%60%20to%20disable%20pf)
-sudo pfctl -f /etc/pf.conf             # Reload original rules [oai_citation:27‡superuser.com](https://superuser.com/questions/505128/deny-access-to-a-port-from-localhost-on-osx#:~:text=1,set%20of%20rules)
-
-Adjust commands to your interface (replace lo0 with en0 or omit on INTERFACE for all interfaces).
-
 How the Firewall Works
 
 macOS actually has two layers of firewall ￼. The Application Firewall (socketfilterfw) is the one in System Settings, letting you allow or block apps. It primarily manages application-level rules. The Packet Filter (pfctl) is a lower-level firewall (also used in BSD) that works at the network level, letting you block specific ports or addresses ￼. In this task we used both: the GUI firewall was turned on for general protection, and pfctl was used to precisely block port 23. By default the macOS Application Firewall only filters incoming app connections; it won’t block arbitrary ports unless you use pf. Conversely, pf can be scripted to drop unwanted traffic (statefully or statelessly) based on your rules. In essence, enabling the firewall adds rules to reject or accept packets; stateful rules (keep state) allow return traffic automatically while blocking new inbound attempts on blocked ports.
@@ -86,7 +94,7 @@ For security, screenshots in this repo should use dummy or anonymized images. Su
 	•	firewall-enabled-toggle.png – Firewall pane with the toggle ON (no real hostname shown).
 	•	firewall-options-menu.png – Firewall Options dialog (blocking mode and app list) with dummy apps.
 
-(In practice, take screenshots on your Mac and then use Preview’s Annotate to blur or cover any real data ￼. These filenames are examples – do not include actual IPs or usernames.)
+
 
 Learning Outcomes
 	•	Gained hands-on experience with the macOS Application Firewall and the lower-level pf system.
